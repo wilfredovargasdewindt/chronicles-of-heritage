@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis Sucesorio - German Enrique DE WINDT</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #2F5496 0%, #1e3a5f 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        .tabs {
+            display: flex;
+            background: #f0f0f0;
+            border-bottom: 3px solid #2F5496;
+        }
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            cursor: pointer;
+            background: #e0e0e0;
+            border-right: 1px solid #ccc;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        .tab:hover { background: #d0d0d0; }
+        .tab.active {
+            background: white;
+            color: #2F5496;
+            border-bottom: 3px solid #2F5496;
+            margin-bottom: -3px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .info-box {
+            background: #f8f9fa;
+            border-left: 5px solid #2F5496;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .info-box h3 {
+            color: #2F5496;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #2F5496;
+            min-width: 150px;
+        }
+        .alert {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .alert h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stat-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95em;
+        }
+        th {
+            background: #2F5496;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover {
+            background: #f5f5f5;
+        }
+        .gen-0 { background-color: #FFC7CE !important; }
+        .gen-1 { background-color: #C6EFCE !important; }
+        .gen-2 { background-color: #FFEB9C !important; }
+        .gen-3 { background-color: #FFF2CC !important; }
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin: 2px;
+        }
+        .badge-alta { background: #ff6b6b; color: white; }
+        .badge-media { background: #ffd966; color: #333; }
+        .badge-vivo { background: #51cf66; color: white; }
+        .badge-fallecido { background: #868e96; color: white; }
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+            margin: 30px 0;
+        }
+        .timeline-item {
+            padding: 20px;
+            background: #f8f9fa;
+            margin: 15px 0;
+            border-left: 4px solid #2F5496;
+            border-radius: 5px;
+        }
+        .timeline-item h4 {
+            color: #2F5496;
+            margin-bottom: 10px;
+        }
+        footer {
+            background: #2F5496;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+        .section {
+            margin: 30px 0;
+        }
+        .section h2 {
+            color: #2F5496;
+            border-bottom: 3px solid #2F5496;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚖️ ANÁLISIS LEGAL-GENEALÓGICO SUCESORIO</h1>
+            <div class="subtitle">GERMAN ENRIQUE DE WINDT DE WINDT</div>
+            <div class="subtitle">Curaçao, 1860 - San Pedro de Macorís, 1950</div>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('resumen')">📊 Resumen Ejecutivo</div>
+            <div class="tab" onclick="showTab('herederos')">👥 Herederos Identificados</div>
+            <div class="tab" onclick="showTab('generaciones')">🌳 Por Generaciones</div>
+            <div class="tab" onclick="showTab('legal')">⚖️ Consideraciones Legales</div>
+        </div>
+
+        <div class="content">
+            <!-- TAB 1: RESUMEN EJECUTIVO -->
+            <div id="resumen" class="tab-content active">
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Años desde fallecimiento</div>
+                        <div class="stat-number">74+</div>
+                        <div class="stat-label">1950 - 2024</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Hijos del Causante</div>
+                        <div class="stat-number">17</div>
+                        <div class="stat-label">Generación 1</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Generaciones</div>
+                        <div class="stat-number">5</div>
+                        <div class="stat-label">Hasta choznos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Personas en árbol</div>
+                        <div class="stat-number">200+</div>
+                        <div class="stat-label">Total estimado</div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h3>📋 Datos del Causante</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Nombre Completo:</span>
+                            <span>German Enrique DE WINDT DE WINDT</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Nacimiento:</span>
+                            <span>28 de Mayo de 1860, Curaçao, Antillas Holandesas</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Defunción:</span>
+                            <span>05 de Septiembre de 1950, San Pedro de Macorís, RD</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Edad:</span>
+                            <span>90 años</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Cónyuge:</span>
+                            <span>Ana Cleofe Lavandier Nuñez (†1916)</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Matrimonio:</span>
+                            <span>22 de Septiembre de 1892</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Descendencia:</span>
+                            <span>17 hijos (15 con derechos sucesorios)</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Tipo de Sucesión:</span>
+                            <span>INTESTADA (presunta - sin testamento conocido)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert">
+                    <h3>⚠️ HALLAZGOS CRÍTICOS</h3>
+                    <ul style="list-style-position: inside; line-height: 1.8;">
+                        <li><strong>Prescripción potencial:</strong> Han transcurrido más de 70 años desde el fallecimiento. Posible prescripción adquisitiva de bienes por terceros.</li>
+                        <li><strong>Todos los hijos fallecidos:</strong> NINGUNO de los 17 hijos originales está vivo. Todos los herederos actuales son nietos o generaciones posteriores.</li>
+                        <li><strong>Dispersión geográfica:</strong> Herederos en RD, USA, Canadá, España, Aruba, Perú, Cuba, Nueva Zelanda. Requiere apostilla de La Haya.</li>
+                        <li><strong>Complejidad documental:</strong> Se requieren actas de nacimiento, matrimonio y defunción de TODAS las personas en línea sucesoria directa.</li>
+                        <li><strong>13 herederos G2 vivos:</strong> Identificados 13 nietos del causante que son herederos actuales por representación (prioridad ALTA).</li>
+                        <li><strong>Múltiples generaciones:</strong> Herederos en generaciones 2, 3, 4 y 5 con derechos sucesorios por representación.</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <h2>📈 Distribución por Generación</h2>
+                    <table>
+                        <tr>
+                            <th>Generación</th>
+                            <th>Descripción</th>
+                            <th>Total</th>
+                            <th>Vivos</th>
+                            <th>Fallecidos</th>
+                            <th>Estado Sucesorio</th>
+                        </tr>
+                        <tr class="gen-0">
+                            <td><strong>G0</strong></td>
+                            <td>Causante</td>
+                            <td>1</td>
+                            <td>0</td>
+                            <td>1</td>
+                            <td>🔵 Causante (†1950)</td>
+                        </tr>
+                        <tr class="gen-1">
+                            <td><strong>G1</strong></td>
+                            <td>Hijos</td>
+                            <td>17</td>
+                            <td>0</td>
+                            <td>17</td>
+                            <td>🔵 Herederos Directos (todos †)</td>
+                        </tr>
+                        <tr class="gen-2">
+                            <td><strong>G2</strong></td>
+                            <td>Nietos</td>
+                            <td>29+</td>
+                            <td>13</td>
+                            <td>16</td>
+                            <td>🟠 Herederos por Representación</td>
+                        </tr>
+                        <tr class="gen-3">
+                            <td><strong>G3</strong></td>
+                            <td>Bisnietos</td>
+                            <td>80+</td>
+                            <td>~70</td>
+                            <td>~10</td>
+                            <td>🟡 Herederos por Representación</td>
+                        </tr>
+                        <tr>
+                            <td><strong>G4</strong></td>
+                            <td>Tataranietos</td>
+                            <td>60+</td>
+                            <td>~55</td>
+                            <td>~5</td>
+                            <td>⚪ Herederos por Representación</td>
+                        </tr>
+                        <tr>
+                            <td><strong>G5</strong></td>
+                            <td>Choznos</td>
+                            <td>15+</td>
+                            <td>~15</td>
+                            <td>0</td>
+                            <td>🔵 Herederos por Representación</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 2: HEREDEROS IDENTIFICADOS -->
+            <div id="herederos" class="tab-content">
+                <div class="info-box">
+                    <h3>👥 Herederos Vivos de Alta Prioridad (Generación 2 - Nietos)</h3>
+                    <p style="margin-top:10px;">Los siguientes <strong>13 herederos</strong> son <strong>NIETOS</strong> del causante y heredan por DERECHO DE REPRESENTACIÓN de sus padres fallecidos. Deben ser contactados con PRIORIDAD ALTA.</p>
+                </div>
+
+                <table>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre Completo</th>
+                        <th>Edad Aprox.</th>
+                        <th>Línea Sucesoria</th>
+                        <th>Estado</th>
+                        <th>Acción Requerida</th>
+                    </tr>
+                    <tr>
+                        <td>G2-002</td>
+                        <td><strong>Helda Mirtha DE WINDT PICHARDO</strong></td>
+                        <td>93 años</td>
+                        <td>Causante → Julio Bernardo (†) → Helda</td>
+                        <td><span class="badge badge-vivo">VIVA</span> <span class="badge badge-alta">PRIORIDAD ALTA</span></td>
+                        <td>Localizar urgente, solicitar documentación</td>
+                    </tr>
+                    <tr>
+                        <td>G2-010</td>
+                        <td><strong>Wilfrido Eduardo SANTIAGO DE WINDT</strong></td>
+                        <td>87 años</td>
+                        <td>Causante → Maria Francisca (†) → Wilfrido</td>
+                        <td><span class="badge badge-vivo">VIVO</span> <span class="badge badge-alta">PRIORIDAD ALTA</span></td>
+                        <td>Localizar urgente, solicitar documentación</td>
+                    </tr>
+                    <tr>
+                        <td>G2-012</td>
+                        <td><strong>Ana Matilde DE WINDT GARCIA</strong></td>
+                        <td>84 años</td>
+                        <td>Causante → Ramón Enrique (†) → Ana Matilde</td>
+                        <td><span class="badge badge-vivo">VIVA</span> <span class="badge badge-alta">PRIORIDAD ALTA</span></td>
+                        <td>Localizar urgente, solicitar documentación</td>
+                    </tr>
+                    <tr>
+                        <td>G2-013</td>
+                        <td><strong>Susana Amelia DE WINDT GARCIA</strong></td>
+                        <td>82 años</td>
+                        <td>Causante → Ramón Enrique (†) → Susana</td>
+                        <td><span class="badge badge-vivo">VIVA</span> <span class="badge badge-alta">PRIORIDAD ALTA</span></td>
+                        <td>Localizar urgente, solicitar documentación</td>
+                    </tr>
+                    <tr>
+                        <td>G2-014</td>
+                        <td><strong>José Enrique ORTIZ DE WINDT</strong></td>
+                        <td>90 años</td>
+                        <td>Causante → Dilia Marietta (†) → José Enrique</td>
+                        <td><span class="badge badge-vivo">VIVO</span> <span class="badge badge-alta">PRIORIDAD ALTA</span></td>
+                        <td>Localizar urgente, solicitar documentación</td>
+                    </tr>
+                    <tr>
+                        <td>G2-015</td>	
+                        <td><strong>Gisela Altagracia ORTIZ DE WINDT</strong></td>	
+                        <td>05-Oct-1935</td>
+                        <td>Causante → Dilia Marietta (†) → Gisela</td>
+                        <td><span class="badge badge-vivo">VIVO</span> <span class="badge badge-alta">PRIORIDAD ALTA</span></td>
+                        <td>Localizar urgente, solicitar documentación</td>
+                    </tr> 
+
+                    <tr>
+                        <td>G2-018</td>	
+                        <td><strong>Zaida Elizabeth DE WINDT CRIME</strong></td>	
+                        <td>01-Jan-1946</td>
+                        <td>Causante → Luis Alejandro (†) → Zaida</td>	
+                        <td><span class="badge badge-vivo">VIVO</span> <span class="badge badge-alta">PRIORIDAD ALTA</span></td>
+                        <td>Localizar urgente, solicitar documentación</td>
+                    </tr>
+                    <tr>
+                        <td>G2-019</td>	
+                        <td><strong>Luis Antonio DE WINDT CRIME</strong></td>	
+                        <td>12-Jun-1953</td>
+                        <td>Causante → Luis Alejandro (†) → Luis Antonio</td>	
+                        <td><span class="badge badge-vivo">VIVO</span> <span class="badge badge-alta">PRIORIDAD ALTA</span></td>
+                        <td>Localizar urgente, solicitar documentación</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>G2-020</td>		
+                        <td><strong>Cesar Alxis DE WINDT VIDAL</strong></td>
+                        <td>3-Apr-1951</td>
+                        <td>Causante → Cesar Augusto (†) → Cesar Alxis</td>	
+                        <td><span class="badge badge-vivo">VIVO</span> <span class="badge badge-alta">PRIORIDAD ALTA</span></td>
+                        <td>Localizar urgente, solicitar documentación</td>
+                    </tr>
+
+                    <tr>
+                        <td>G2-023</td>		
+                        <td><strong>Bertrand Oscar DE WINDT VIDAL</strong></td>
+                        <td>04-Jan-1954</td>
+                        <td>Causante → Cesar Augusto (†) → Bertrand</td>
+                        <td><span class="badge badge-vivo">VIVO</span> <span class="badge badge-alta">PRIORIDAD ALTA</span></td>
+                        <td>Localizar urgente, solicitar documentación</td>
+                    </tr>
+                    <tr>
+                        <td>G2-024</td>		
+                        <td><strong>Ana Margarita DE WINDT VIDAL</strong></td>
+                        <td>14-Jul-1955</td>
+                        <td>Causante → Cesar Augusto (†) → Ana Margarita</td>
+                    	<td><span class="badge badge-vivo">VIVA</span> <span class="badge badge-alta">PRIORIDAD ALTA</span></td>
+                        <td>Localizar urgente, solicitar documentación</td>
+                    </tr>
+                    <tr>
+                        <td>G2-027</td>		 
+                        <td><strong>Eduardo Enrique DE WINDT RUIZ</strong></td>
+                        <td>25-May-1950</td>
+                        <td>Causante → Mario Enrique (†) → Eduardo</td>
+                        <td><span class="badge badge-vivo">VIVO</span> <span class="badge badge-alta">PRIORIDAD ALTA</span></td>
+                        <td>Localizar urgente, solicitar documentación</td>
+                    </tr>
+                    <tr>
+                        <td>G2-029</td>		
+                        <td><strong>Ramon Antonio DE WINDT RUIZ</strong></td>
+                        <td>17-Feb-1956</td>	
+                        <td>Causante → Mario Enrique (†) → Ramon</td>	
+                        <td><span class="badge badge-vivo">VIVO</span> <span class="badge badge-alta">PRIORIDAD ALTA</span></td>
+                        <td>Localizar urgente, solicitar documentación</td>
+                    </tr>
+                 
+                    <tr>
+                        <td colspan="6" style="text-align:center; background:#f0f0f0; font-style:italic;">
+                            ...  G3 G4 adicionales (Biznietos y Tataranietos) ------- (ver archivo Excel completo)
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="alert" style="margin-top:30px;">
+                    <h3>📝 Documentación Requerida para Herederos G2</h3>
+                    <ol style="list-style-position: inside; line-height: 1.8; margin-top:10px;">
+                        <li>Acta de nacimiento íntegra original</li>
+                        <li>Acta de nacimiento traducida y apostillada (si nació fuera de RD)</li>
+                        <li>Acta de filiación con su padre/madre (hijo del causante)</li>
+                        <li>Cédula de identidad o pasaporte VIGENTE</li>
+                        <li>Certificado de domicilio actual</li>
+                        <li>Poder notarial si designa representante legal</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- TAB 3: POR GENERACIONES -->
+            <div id="generaciones" class="tab-content">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <h4>🔵 Generación 0: CAUSANTE (1 persona)</h4>
+                        <p><strong>German Enrique DE WINDT DE WINDT</strong> (1860-1950)</p>
+                        <p style="margin-top:10px;">Nació en Curaçao. Falleció a los 90 años en San Pedro de Macorís. Casado con Ana Cleofe Lavandier. 17 hijos.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h4>🟢 Generación 1: HIJOS (17 personas - TODOS FALLECIDOS)</h4>
+                        <p>15 hijos con derechos sucesorios (2 fallecieron en infancia sin descendencia)</p>
+                        <ul style="margin-top:10px; margin-left:20px;">
+                            <li>Julio Bernardo (†1970) - 3 hijos</li>
+                            <li>Carlos Arnaldo (†1960) - 3 hijos</li>
+                            <li>Maria Francisca (†1966) - 4 hijos</li>
+                            <li>Ramón Enrique (†1987) - 3 hijas</li>
+                            <li>Dilia Marietta (†1983) - 4 hijos</li>
+                            <li>Luis Alejandro (†2004) - 2 hijos</li>
+                            <li>Cesar Augusto (†2007) - 6 hijos</li>
+                            <li>Mario Enrique (†1974) - 3 hijos</li>
+                            <li>... y 7 hijas más (algunas sin descendencia conocida)</li>
+                        </ul>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h4>🟠 Generación 2: NIETOS (29+ personas - 13 VIVOS)</h4>
+                        <p><strong>HEREDEROS ACTUALES POR REPRESENTACIÓN</strong></p>
+                        <p style="margin-top:10px;">Los 13 nietos vivos son los herederos de mayor prioridad. Edades entre 68-90 años aproximadamente.</p>
+                        <p style="margin-top:10px;"><strong>Acción:</strong> Localización y contacto urgente para inicio de trámites sucesorios.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h4>🟡 Generación 3: BISNIETOS (80+ personas - mayoría vivos)</h4>
+                        <p>Heredan por representación cuando su padre/madre (nieto del causante) ha fallecido.</p>
+                        <p style="margin-top:10px;">Edades aproximadas entre 30-75 años. Muchos residentes en RD, USA y otros países.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h4>⚪ Generación 4: TATARANIETOS (60+ personas - mayoría vivos)</h4>
+                        <p>Heredan por representación múltiple. Edades entre 15-45 años aproximadamente.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h4>🔵 Generación 5: CHOZNOS (15+ personas - todos vivos)</h4>
+                        <p>5ta generación desde el causante. Los más jóvenes en el árbol (menores de 20 años).</p>
+                        <p style="margin-top:10px;">Heredan por representación si toda su línea ascendente ha fallecido.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: CONSIDERACIONES LEGALES -->
+            <div id="legal" class="tab-content">
+                <div class="section">
+                    <h2>⚖️ Marco Legal Aplicable</h2>
+                    
+                    <div class="info-box">
+                        <h3>🏛️ Jurisdicción y Legislación</h3>
+                        <p style="margin-top:10px;"><strong>Jurisdicción principal:</strong> República Dominicana (lugar de fallecimiento y posible ubicación de bienes)</p>
+                        <p style="margin-top:10px;"><strong>Consideración especial:</strong> Causante nació en Curaçao (Antillas Holandesas) - puede requerir consulta de legislación de Curaçao según ubicación de bienes.</p>
+                        <p style="margin-top:10px;"><strong>Tipo de sucesión:</strong> INTESTADA (ab intestato) - presunta, sin testamento conocido</p>
+                    </div>
+
+                    <div class="info-box" style="margin-top:20px;">
+                        <h3>👨‍⚖️ Derecho de Representación</h3>
+                        <p style="margin-top:10px;">Dado que TODOS los hijos del causante han fallecido, aplica plenamente el <strong>derecho de representación</strong> establecido en el Código Civil Dominicano.</p>
+                        <p style="margin-top:10px;"><strong>Artículo aplicable:</strong> Los descendientes de los herederos directos fallecidos heredan por representación en línea recta descendente.</p>
+                        <p style="margin-top:10px;"><strong>Implicación:</strong> Los nietos (G2) ocupan el lugar de sus padres fallecidos, los bisnietos (G3) ocupan el lugar de sus abuelos fallecidos, y así sucesivamente.</p>
+                    </div>
+
+                    <div class="alert" style="margin-top:20px;">
+                        <h3>⚠️ OBSTÁCULOS LEGALES IDENTIFICADOS</h3>
+                        <ol style="list-style-position: inside; line-height: 1.8; margin-top:10px;">
+                            <li><strong>Prescripción adquisitiva:</strong> Después de 74 años, terceros pueden haber adquirido bienes por prescripción.</li>
+                            <li><strong>Cadena de filiación:</strong> Cada heredero debe probar su línea genealógica completa desde el causante.</li>
+                            <li><strong>Documentación internacional:</strong> Actas de múltiples países requieren traducción oficial y Apostilla de La Haya.</li>
+                            <li><strong>Localización de herederos:</strong> Muchos herederos están dispersos geográficamente o pueden desconocer sus derechos.</li>
+                            <li><strong>Bienes desconocidos:</strong> Después de 74 años, puede ser difícil identificar qué bienes formaban el patrimonio sucesorio.</li>
+                            <li><strong>Múltiples matrimonios:</strong> Algunos herederos son de diferentes matrimonios, complicando la prueba de filiación.</li>
+                            <li><strong>Notificación masiva:</strong> Se requiere notificar a potencialmente 200+ personas.</li>
+                        </ol>
+                    </div>
+
+                    <div class="section" style="margin-top:30px;">
+                        <h2>📋 Proceso Recomendado</h2>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <h4>FASE 1: Investigación Preliminar (1-2 meses)</h4>
+                                <ul style="margin-left:20px; margin-top:10px;">
+                                    <li>Búsqueda de testamento en archivos notariales de RD y Curaçao</li>
+                                    <li>Identificación de bienes del causante (registros de propiedad, catastro)</li>
+                                    <li>Verificación de prescripciones y posesiones de terceros</li>
+                                    <li>Obtención de actas del causante (nacimiento, matrimonio, defunción)</li>
+                                </ul>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>FASE 2: Localización de Herederos G2 (2-3 meses)</h4>
+                                <ul style="margin-left:20px; margin-top:10px;">
+                                    <li>Contacto con los 15 nietos vivos identificados</li>
+                                    <li>Solicitud de documentación: cédulas, actas, pruebas de filiación</li>
+                                    <li>Verificación de estado vital (certificados de vida)</li>
+                                    <li>Identificación de domicilios actuales</li>
+                                </ul>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>FASE 3: Documentación y Apostillas (3-6 meses)</h4>
+                                <ul style="margin-left:20px; margin-top:10px;">
+                                    <li>Recopilación de actas de toda la cadena sucesoria</li>
+                                    <li>Traducción oficial de documentos extranjeros</li>
+                                    <li>Apostilla de La Haya para documentos internacionales</li>
+                                    <li>Organización de expediente genealógico completo</li>
+                                </ul>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>FASE 4: Proceso Judicial (12-24 meses)</h4>
+                                <ul style="margin-left:20px; margin-top:10px;">
+                                    <li>Presentación de declaratoria de herederos ante tribunal</li>
+                                    <li>Notificación legal a todos los herederos conocidos</li>
+                                    <li>Publicaciones edictos para herederos desconocidos</li>
+                                    <li>Audiencias y resoluciones judiciales</li>
+                                </ul>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>FASE 5: Partición y Adjudicación (6-12 meses)</h4>
+                                <ul style="margin-left:20px; margin-top:10px;">
+                                    <li>Avalúo de bienes identificados</li>
+                                    <li>Acuerdo de partición entre herederos</li>
+                                    <li>Inscripción de títulos de propiedad</li>
+                                    <li>Distribución de cuotas hereditarias</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-box" style="margin-top:30px;">
+                        <h3>💡 Recomendaciones Profesionales</h3>
+                        <ul style="list-style-position: inside; line-height: 1.8; margin-top:10px;">
+                            <li>Contratar abogado especializado en derecho sucesorio con experiencia en sucesiones complejas y antiguas</li>
+                            <li>Considerar mediación entre herederos para evitar litigios costosos</li>
+                            <li>Evaluar costo-beneficio: el costo del proceso puede superar el valor de los bienes</li>
+                            <li>Investigar si existen fundaciones o asociaciones familiares DE WINDT</li>
+                            <li>Documentar todo el proceso para futuras generaciones</li>
+                            <li>Crear grupo de WhatsApp o plataforma digital para comunicación entre herederos</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p><strong>Documento generado el 7 de Febrero de 2026</strong></p>
+            <p style="margin-top:10px;">Análisis Legal-Genealógico Sucesorio - German Enrique DE WINDT DE WINDT</p>
+            <p style="margin-top:10px; font-size:0.9em; opacity:0.8;">Este documento es de carácter informativo y no constituye asesoría legal. Se recomienda consultar con abogado especializado en derecho sucesorio.</p>
+        </footer>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Ocultar todos los contenidos
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remover active de todas las tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Mostrar el contenido seleccionado
+            document.getElementById(tabName).classList.add('active');
+            
+            // Activar la tab clickeada
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

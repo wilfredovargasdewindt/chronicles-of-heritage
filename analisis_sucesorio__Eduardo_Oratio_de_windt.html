@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis Sucesorio - Eduardo Oratio DE WINDT DE WINDT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1f4e78 0%, #2d5a8a 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 3px solid #1f4e78;
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            background: #e0e0e0;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+        
+        .tab:hover {
+            background: #d0d0d0;
+        }
+        
+        .tab.active {
+            background: white;
+            color: #1f4e78;
+            border-bottom: 3px solid #1f4e78;
+            margin-bottom: -3px;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 40px;
+            animation: fadeIn 0.5s;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            border-left: 5px solid #1f4e78;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .info-box h3 {
+            color: #1f4e78;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        
+        .info-box .data-row {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .info-box .data-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-box .label {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .info-box .value {
+            color: #555;
+        }
+        
+        .herederos-list {
+            display: grid;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .heredero-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .heredero-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .heredero-card.directo {
+            border-left: 5px solid #4472c4;
+            background: #e8eef7;
+        }
+        
+        .heredero-card.representacion {
+            border-left: 5px solid #ffc000;
+            background: #fff9e6;
+        }
+        
+        .heredero-card.verificar {
+            border-left: 5px solid #ff6b6b;
+            background: #ffe6e6;
+        }
+        
+        .heredero-card h4 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .heredero-card .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .status.vivo {
+            background: #c6e0b4;
+            color: #2d5016;
+        }
+        
+        .status.fallecido {
+            background: #d0d0d0;
+            color: #333;
+        }
+        
+        .status.desconocido {
+            background: #ffd966;
+            color: #7f6000;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9em;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        table thead {
+            background: #1f4e78;
+            color: white;
+        }
+        
+        table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        table tbody tr:hover {
+            background: #f5f5f5;
+        }
+        
+        table tbody tr.gen-0 {
+            background: #e8eef7;
+        }
+        
+        table tbody tr.gen-1 {
+            background: #d6dce4;
+        }
+        
+        table tbody tr.gen-2 {
+            background: #fff9e6;
+        }
+        
+        table tbody tr.gen-3 {
+            background: #e6f4ea;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            border: 2px solid #333;
+        }
+        
+        .alert {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 5px solid;
+        }
+        
+        .alert.critical {
+            background: #ffe6e6;
+            border-color: #c00000;
+            color: #c00000;
+        }
+        
+        .alert.warning {
+            background: #fff9e6;
+            border-color: #ffc000;
+            color: #7f6000;
+        }
+        
+        .alert.info {
+            background: #e8eef7;
+            border-color: #4472c4;
+            color: #1f4e78;
+        }
+        
+        .alert h3 {
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        
+        .alert ul {
+            margin-left: 20px;
+        }
+        
+        .alert li {
+            margin: 8px 0;
+        }
+        
+        .tree-container {
+            overflow-x: auto;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .tree {
+            display: inline-block;
+            min-width: 100%;
+        }
+        
+        .tree ul {
+            padding-top: 20px;
+            position: relative;
+            transition: all 0.5s;
+            list-style: none;
+        }
+        
+        .tree li {
+            float: left;
+            text-align: center;
+            list-style-type: none;
+            position: relative;
+            padding: 20px 5px 0 5px;
+            transition: all 0.5s;
+        }
+        
+        .tree li::before, .tree li::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 50%;
+            border-top: 2px solid #ccc;
+            width: 50%;
+            height: 20px;
+        }
+        
+        .tree li::after {
+            right: auto;
+            left: 50%;
+            border-left: 2px solid #ccc;
+        }
+        
+        .tree li:only-child::after, .tree li:only-child::before {
+            display: none;
+        }
+        
+        .tree li:only-child {
+            padding-top: 0;
+        }
+        
+        .tree li:first-child::before, .tree li:last-child::after {
+            border: 0 none;
+        }
+        
+        .tree li:last-child::before {
+            border-right: 2px solid #ccc;
+            border-radius: 0 5px 0 0;
+        }
+        
+        .tree li:first-child::after {
+            border-radius: 5px 0 0 0;
+        }
+        
+        .tree ul ul::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            border-left: 2px solid #ccc;
+            width: 0;
+            height: 20px;
+        }
+        
+        .tree li a {
+            border: 2px solid #ccc;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #333;
+            font-size: 0.85em;
+            display: inline-block;
+            border-radius: 5px;
+            transition: all 0.5s;
+            background: white;
+            min-width: 150px;
+        }
+        
+        .tree li a:hover, .tree li a:hover+ul li a {
+            background: #e8eef7;
+            color: #1f4e78;
+            border: 2px solid #1f4e78;
+        }
+        
+        .tree li a.causante {
+            background: #1f4e78;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .tree li a.heredero-directo {
+            background: #d6dce4;
+            border-color: #4472c4;
+        }
+        
+        .tree li a.heredero-rep {
+            background: #fff9e6;
+            border-color: #ffc000;
+        }
+        
+        .tree li a.fallecido {
+            opacity: 0.7;
+            text-decoration: line-through;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .stat-card h3 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #1f4e78;
+            background: white;
+            color: #1f4e78;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: #1f4e78;
+            color: white;
+        }
+        
+        .scroll-hint {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin: 10px 0;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .tabs, .filter-buttons {
+                display: none;
+            }
+            
+            .tab-content {
+                display: block !important;
+                page-break-after: always;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+            
+            .tab-content {
+                padding: 20px;
+            }
+            
+            table {
+                font-size: 0.75em;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚖️ Análisis Legal-Genealógico Sucesorio</h1>
+            <p>Eduardo Oratio DE WINDT DE WINDT (1870-1947)</p>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="openTab('resumen')">📋 Resumen Ejecutivo</button>
+            <button class="tab" onclick="openTab('herederos')">👥 Herederos</button>
+            <button class="tab" onclick="openTab('tabla')">📊 Tabla Completa</button>
+            <button class="tab" onclick="openTab('arbol')">🌳 Árbol Genealógico</button>
+            <button class="tab" onclick="openTab('documentos')">📄 Documentos Requeridos</button>
+            <button class="tab" onclick="openTab('legal')">⚖️ Consideraciones Legales</button>
+        </div>
+        
+        <!-- TAB: Resumen Ejecutivo -->
+        <div id="resumen" class="tab-content active">
+            <h2>Resumen Ejecutivo</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>2</h3>
+                    <p>Herederos Directos (Fallecidos)</p>
+                </div>
+                <div class="stat-card">
+                    <h3>6</h3>
+                    <p>Herederos Generación 2 (Vivos)</p>
+                </div>
+                <div class="stat-card">
+                    <h3>15</h3>
+                    <p>Herederos Generación 3 (Por Representación)</p>
+                </div>
+                <div class="stat-card">
+                    <h3>77+</h3>
+                    <p>Años desde el fallecimiento</p>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <h3>Información del Causante</h3>
+                <div class="data-row">
+                    <span class="label">Nombre completo:</span>
+                    <span class="value">Eduardo Oratio DE WINDT DE WINDT</span>
+                </div>
+                <div class="data-row">
+                    <span class="label">Nacimiento:</span>
+                    <span class="value">13 de octubre de 1870 en Curaçao</span>
+                </div>
+                <div class="data-row">
+                    <span class="label">Defunción:</span>
+                    <span class="value">27 de junio de 1947 en Samaná, República Dominicana</span>
+                </div>
+                <div class="data-row">
+                    <span class="label">Cónyuge:</span>
+                    <span class="value">Altagracia LALANE FERRAND (casados el 24 de diciembre de 1898)</span>
+                </div>
+            </div>
+            
+            <div class="alert critical">
+                <h3>⚠️ Observaciones Legales Críticas</h3>
+                <ul>
+                    <li><strong>JURISDICCIÓN:</strong> El causante nació en Curaçao (Antillas Holandesas) pero falleció en República Dominicana. Debe determinarse la ley aplicable a la sucesión.</li>
+                    <li><strong>DOCUMENTACIÓN:</strong> Todos los herederos requieren actas de nacimiento, defunción y matrimonio (originales, traducidas y apostilladas).</li>
+                    <li><strong>FILIACIÓN:</strong> Flora JAZMIN y Maria ALTAGRACIA presentan inconsistencias cronológicas que requieren investigación urgente.</li>
+                    <li><strong>PRESCRIPCIÓN:</strong> Han transcurrido más de 77 años desde el fallecimiento. Debe verificarse el plazo prescriptivo según la legislación aplicable.</li>
+                    <li><strong>CADENA GENEALÓGICA:</strong> Es necesario establecer pruebas de filiación completas desde el causante hasta los herederos actuales.</li>
+                </ul>
+            </div>
+            
+            <div class="alert info">
+                <h3>📌 Orden de Sucesión</h3>
+                <p><strong>Generación 1 (Hijos directos):</strong></p>
+                <ul>
+                    <li>🔵 Juana Elicia DE WINDT LALANE (1899-1992) - FALLECIDA sin descendientes</li>
+                    <li>🔵 Gustavo Bernardo DE WINDT LALANE (1900-1971) - FALLECIDO con descendientes</li>
+                </ul>
+                <p><strong>Aplicación del Derecho de Representación:</strong></p>
+                <p>Dado que ambos herederos directos han fallecido, sus descendientes (nietos del causante) heredan por derecho de representación. La rama de Juana Elicia se extinguió sin descendientes, por lo que su porción acreció a la rama de Gustavo Bernardo.</p>
+            </div>
+        </div>
+        
+        <!-- TAB: Herederos -->
+        <div id="herederos" class="tab-content">
+            <h2>Herederos Actuales</h2>
+            
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterHerederos('todos')">Todos</button>
+                <button class="filter-btn" onclick="filterHerederos('vivos')">Solo Vivos</button>
+                <button class="filter-btn" onclick="filterHerederos('gen2')">Generación 2</button>
+                <button class="filter-btn" onclick="filterHerederos('gen3')">Generación 3</button>
+            </div>
+            
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #e8eef7; border-color: #4472c4;"></div>
+                    <span>🔵 Herederos Directos (Gen 1)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #fff9e6; border-color: #ffc000;"></div>
+                    <span>🟡 Heredan por Representación (Gen 2)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #e6f4ea; border-color: #00b050;"></div>
+                    <span>🟢 Heredan por Representación (Gen 3)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ffe6e6; border-color: #ff6b6b;"></div>
+                    <span>🔴 Requiere Investigación</span>
+                </div>
+            </div>
+            
+            <h3>Generación 2 - Nietos del Causante (Heredan por Representación)</h3>
+            <div class="herederos-list" id="herederos-gen2">
+                <div class="heredero-card representacion gen2 vivo">
+                    <h4>1. Luisa Elisia DE WINDT SILBERBERG</h4>
+                    <p><strong>Nacimiento:</strong> 15 de noviembre de 1933</p>
+                    <p><strong>Cónyuge(s):</strong> Jorge Alberto SEVERINO, Francisco Armando TAVERA</p>
+                    <p><strong>Hijos:</strong> 1 (con Severino)</p>
+                    <span class="status vivo">VIVA</span>
+                    <p style="margin-top: 10px;"><em>🟡 Hereda por representación de su padre Gustavo Bernardo DE WINDT LALANE</em></p>
+                </div>
+                
+                <div class="heredero-card representacion gen2 vivo">
+                    <h4>2. Magnolia Antonia DE WINDT SILBERBERG</h4>
+                    <p><strong>Nacimiento:</strong> 10 de mayo de 1935</p>
+                    <p><strong>Cónyuge:</strong> Wilfredo Marcial VARGAS PARRAVECINI</p>
+                    <p><strong>Hijos:</strong> 2</p>
+                    <span class="status vivo">VIVA</span>
+                    <p style="margin-top: 10px;"><em>🟡 Hereda por representación de su padre Gustavo Bernardo DE WINDT LALANE</em></p>
+                </div>
+                
+                <div class="heredero-card representacion gen2 vivo">
+                    <h4>3. Andres Virgilio DE WINDT SILBERBERG</h4>
+                    <p><strong>Nacimiento:</strong> 30 de noviembre de 1938</p>
+                    <p><strong>Cónyuge(s):</strong> Furceda Pacheco Perez, Altagracia Milagros Matos Mendez</p>
+                    <p><strong>Hijos:</strong> 2 (con Matos)</p>
+                    <span class="status vivo">VIVO</span>
+                    <p style="margin-top: 10px;"><em>🟡 Hereda por representación de su padre Gustavo Bernardo DE WINDT LALANE</em></p>
+                </div>
+                
+                <div class="heredero-card verificar gen2 desconocido">
+                    <h4>4. Gladiola DE WINDT JAZMIN</h4>
+                    <p><strong>Nacimiento:</strong> 18 de enero de 1950</p>
+                    <p><strong>Cónyuge(s):</strong> Rafael Danilo ANDERSON, Sixto Bienvenido Vasquez Melion</p>
+                    <p><strong>Hijos:</strong> 4</p>
+                    <span class="status desconocido">ESTADO DESCONOCIDO</span>
+                    <p style="margin-top: 10px;"><em>⚠️ REQUIERE INVESTIGACIÓN DE FILIACIÓN con Flora JAZMIN</em></p>
+                </div>
+                
+                <div class="heredero-card verificar gen2 desconocido">
+                    <h4>5. Martinan DE WINDT JAZMIN</h4>
+                    <p><strong>Nacimiento:</strong> 3 de abril de 1955</p>
+                    <p><strong>Cónyuge(s):</strong> Celestina Maribel Santana Acosta, Leyvi SANCHEZ</p>
+                    <p><strong>Hijos:</strong> 3</p>
+                    <span class="status desconocido">ESTADO DESCONOCIDO</span>
+                    <p style="margin-top: 10px;"><em>⚠️ REQUIERE INVESTIGACIÓN DE FILIACIÓN con Flora JAZMIN</em></p>
+                </div>
+                
+                <div class="heredero-card verificar gen2 desconocido">
+                    <h4>6. Reyna Margarita DE WINDT ALTAGRACIA</h4>
+                    <p><strong>Nacimiento:</strong> 10 de junio de 1943</p>
+                    <p><strong>Cónyuge:</strong> Antonio LOPEZ</p>
+                    <p><strong>Hijos:</strong> Desconocido</p>
+                    <span class="status desconocido">ESTADO DESCONOCIDO</span>
+                    <p style="margin-top: 10px;"><em>⚠️ REQUIERE INVESTIGACIÓN URGENTE DE FILIACIÓN con Maria ALTAGRACIA</em></p>
+                </div>
+            </div>
+            
+            <h3 style="margin-top: 40px;">Generación 3 - Bisnietos que Heredan por Representación</h3>
+            <p style="margin-bottom: 20px;"><em>Estos herederos reciben la porción que correspondía a sus padres fallecidos (Generación 2)</em></p>
+            
+            <div class="herederos-list" id="herederos-gen3">
+                <h4 style="color: #1f4e78; margin-top: 20px;">Por Yolanda Emilia Altagracia DE WINDT SILBERBERG (fallecida 2022):</h4>
+                
+                <div class="heredero-card gen3 desconocido">
+                    <h4>1. Juana Yolanda Esther GAUTREAU DE WINDT</h4>
+                    <p><strong>Nacimiento:</strong> 6 de noviembre de 1955</p>
+                    <p><strong>Cónyuge:</strong> Jose BUSSI BAZIL</p>
+                    <span class="status desconocido">VERIFICAR ESTADO</span>
+                    <p style="margin-top: 10px;"><em>🟢 Hereda por representación de su madre fallecida</em></p>
+                </div>
+                
+                <div class="heredero-card gen3 desconocido">
+                    <h4>2. Maria Taina De Jesus GAUTREAU DE WINDT</h4>
+                    <p><strong>Nacimiento:</strong> 12 de mayo de 1957</p>
+                    <p><strong>Cónyuge(s):</strong> Pedro Jose BAEZ, Jose Tomas PEREZ VAZQUEZ</p>
+                    <p><strong>Hijos:</strong> 1</p>
+                    <span class="status desconocido">VERIFICAR ESTADO</span>
+                    <p style="margin-top: 10px;"><em>🟢 Hereda por representación de su madre fallecida</em></p>
+                </div>
+                
+                <div class="heredero-card gen3 desconocido">
+                    <h4>3. Pedro Julio Enmanuel GAUTREAU DE WINDT</h4>
+                    <p><strong>Nacimiento:</strong> 6 de marzo de 1959</p>
+                    <p><strong>Cónyuge(s):</strong> Etsuko MAEDA, Ana Luisa UREÑA ROSA</p>
+                    <p><strong>Hijos:</strong> 4</p>
+                    <span class="status desconocido">VERIFICAR ESTADO</span>
+                    <p style="margin-top: 10px;"><em>🟢 Hereda por representación de su madre fallecida</em></p>
+                </div>
+                
+                <div class="heredero-card gen3 desconocido">
+                    <h4>4. Eduardo Clodomiro Emmanuel GAUTREAU DE WINDT</h4>
+                    <p><strong>Nacimiento:</strong> 27 de abril de 1962</p>
+                    <span class="status desconocido">VERIFICAR ESTADO</span>
+                    <p style="margin-top: 10px;"><em>🟢 Hereda por representación de su madre fallecida</em></p>
+                </div>
+                
+                <div class="heredero-card gen3 desconocido">
+                    <h4>5. Trinidad Anadina GAUTREAU DE WINDT</h4>
+                    <p><strong>Nacimiento:</strong> 19 de abril de 1964</p>
+                    <p><strong>Cónyuge(s):</strong> Khendar MAÑON TRINIDAD, Rene VARGAS</p>
+                    <p><strong>Hijos:</strong> 3</p>
+                    <span class="status desconocido">VERIFICAR ESTADO</span>
+                    <p style="margin-top: 10px;"><em>🟢 Hereda por representación de su madre fallecida</em></p>
+                </div>
+                
+                <div class="heredero-card gen3 desconocido">
+                    <h4>6. Maria Susana De Jesus GAUTREAU DE WINDT</h4>
+                    <p><strong>Nacimiento:</strong> 19 de marzo de 1966</p>
+                    <p><strong>Cónyuge:</strong> Nelson Geovany AQUINO BAEZ</p>
+                    <p><strong>Hijos:</strong> 3</p>
+                    <span class="status desconocido">VERIFICAR ESTADO</span>
+                    <p style="margin-top: 10px;"><em>🟢 Hereda por representación de su madre fallecida</em></p>
+                </div>
+                
+                <div class="heredero-card gen3 desconocido">
+                    <h4>7. Juan Benjamin De Jesus GAUTREAU DE WINDT</h4>
+                    <p><strong>Nacimiento:</strong> 10 de febrero de 1971</p>
+                    <span class="status desconocido">VERIFICAR ESTADO</span>
+                    <p style="margin-top: 10px;"><em>🟢 Hereda por representación de su madre fallecida</em></p>
+                </div>
+                
+                <h4 style="color: #1f4e78; margin-top: 30px;">Por Gustavo Bertran Franco DE WINDT SILBERBERG (fallecido 2018):</h4>
+                
+                <div class="heredero-card gen3 desconocido">
+                    <h4>8. Gustavo De Jesus DE WINDT FELIX</h4>
+                    <p><strong>Nacimiento:</strong> 14 de septiembre de 1963</p>
+                    <p><strong>Cónyuge:</strong> Paula Lucia CAMILO RODRIGUEZ</p>
+                    <p><strong>Hijos:</strong> 3</p>
+                    <span class="status desconocido">VERIFICAR ESTADO</span>
+                    <p style="margin-top: 10px;"><em>🟢 Hereda por representación de su padre fallecido</em></p>
+                </div>
+                
+                <div class="heredero-card gen3 desconocido">
+                    <h4>9. Julio Alberto DE WINDT FELIX</h4>
+                    <p><strong>Nacimiento:</strong> 22 de septiembre de 1965</p>
+                    <p><strong>Cónyuge:</strong> Linnette TAVARES</p>
+                    <p><strong>Hijos:</strong> 1</p>
+                    <span class="status desconocido">VERIFICAR ESTADO</span>
+                    <p style="margin-top: 10px;"><em>🟢 Hereda por representación de su padre fallecido</em></p>
+                </div>
+                
+                <div class="heredero-card gen3 desconocido">
+                    <h4>10. Ricardo Eliseo DE WINDT FELIX</h4>
+                    <p><strong>Nacimiento:</strong> 25 de septiembre de 1968</p>
+                    <p><strong>Cónyuge:</strong> Vanessa ALONZO</p>
+                    <p><strong>Hijos:</strong> 2</p>
+                    <span class="status desconocido">VERIFICAR ESTADO</span>
+                    <p style="margin-top: 10px;"><em>🟢 Hereda por representación de su padre fallecido</em></p>
+                </div>
+                
+                <div class="heredero-card gen3 desconocido">
+                    <h4>11. Galvany Yajaira DE WINDT MORALES</h4>
+                    <p><strong>Nacimiento:</strong> 8 de marzo de 1980</p>
+                    <span class="status desconocido">VERIFICAR ESTADO</span>
+                    <p style="margin-top: 10px;"><em>🟢 Hereda por representación de su padre fallecido</em></p>
+                </div>
+                
+                <h4 style="color: #1f4e78; margin-top: 30px;">Por Esther Cecilia DE WINDT SILBERBERG (fallecida 2010):</h4>
+                
+                <div class="heredero-card gen3 desconocido">
+                    <h4>12. Wilfredo MATEO DE WINDT</h4>
+                    <p><strong>Nacimiento:</strong> 10 de octubre de 1963</p>
+                    <p><strong>Cónyuge:</strong> Lizbeth HERNANDEZ</p>
+                    <p><strong>Hijos:</strong> 3</p>
+                    <span class="status desconocido">VERIFICAR ESTADO</span>
+                    <p style="margin-top: 10px;"><em>🟢 Hereda por representación de su madre fallecida</em></p>
+                </div>
+                
+                <div class="heredero-card gen3 desconocido">
+                    <h4>13. Cecilia Mercedes MATEO DE WINDT</h4>
+                    <p><strong>Nacimiento:</strong> 12 de junio de 1965</p>
+                    <p><strong>Cónyuge:</strong> William APONTE</p>
+                    <p><strong>Hijos:</strong> 1</p>
+                    <span class="status desconocido">VERIFICAR ESTADO</span>
+                    <p style="margin-top: 10px;"><em>🟢 Hereda por representación de su madre fallecida</em></p>
+                </div>
+                
+                <div class="heredero-card gen3 desconocido">
+                    <h4>14. David MATEO DE WINDT</h4>
+                    <p><strong>Nacimiento:</strong> 30 de mayo de 1968</p>
+                    <span class="status desconocido">VERIFICAR ESTADO</span>
+                    <p style="margin-top: 10px;"><em>🟢 Hereda por representación de su madre fallecida</em></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB: Tabla Completa -->
+        <div id="tabla" class="tab-content">
+            <h2>Tabla Genealógica Completa</h2>
+            <p class="scroll-hint">⬅️ Desliza horizontalmente para ver todas las columnas ➡️</p>
+            
+            <div style="overflow-x: auto;">
+                <table id="tabla-principal">
+                    <thead>
+                        <tr>
+                            <th>Gen</th>
+                            <th>Nombre Completo</th>
+                            <th>Apellidos</th>
+                            <th>F. Nacimiento</th>
+                            <th>F. Defunción</th>
+                            <th>Fallecido</th>
+                            <th>Observaciones Legales</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="gen-0">
+                            <td>0</td>
+                            <td>Eduardo Oratio</td>
+                            <td>DE WINDT DE WINDT</td>
+                            <td>13-Oct-1870</td>
+                            <td>27-Jun-1947</td>
+                            <td>Sí</td>
+                            <td><strong>CAUSANTE</strong> - Nació Curaçao, falleció Rep. Dominicana</td>
+                        </tr>
+                        <tr class="gen-1">
+                            <td>1</td>
+                            <td>Juana Elicia</td>
+                            <td>DE WINDT LALANE</td>
+                            <td>02-Oct-1899</td>
+                            <td>25-Feb-1992</td>
+                            <td>Sí</td>
+                            <td>🔵 HEREDERA DIRECTA fallecida. Sin descendientes</td>
+                        </tr>
+                        <tr class="gen-1">
+                            <td>1</td>
+                            <td>Gustavo Bernardo</td>
+                            <td>DE WINDT LALANE</td>
+                            <td>05-Dec-1900</td>
+                            <td>22-Aug-1971</td>
+                            <td>Sí</td>
+                            <td>🔵 HEREDERO DIRECTO fallecido. Sus descendientes heredan</td>
+                        </tr>
+                        <tr class="gen-2">
+                            <td>2</td>
+                            <td>Yolanda Emilia Altagracia</td>
+                            <td>DE WINDT SILBERBERG</td>
+                            <td>08-Oct-1928</td>
+                            <td>25-Jun-2022</td>
+                            <td>Sí</td>
+                            <td>🟡 HEREDÓ POR REPRESENTACIÓN. Sus 7 hijos heredan</td>
+                        </tr>
+                        <tr class="gen-2">
+                            <td>2</td>
+                            <td>Eduardo Aaron</td>
+                            <td>DE WINDT SILBERBERG</td>
+                            <td>20-Dec-1929</td>
+                            <td>30-Jun-2017</td>
+                            <td>Sí</td>
+                            <td>🟡 HEREDÓ POR REPRESENTACIÓN. Sin descendientes</td>
+                        </tr>
+                        <tr class="gen-2">
+                            <td>2</td>
+                            <td>Luisa Elisia</td>
+                            <td>DE WINDT SILBERBERG</td>
+                            <td>15-Nov-1933</td>
+                            <td>-</td>
+                            <td>No</td>
+                            <td>🟡 <strong>HEREDA POR REPRESENTACIÓN</strong> (viva)</td>
+                        </tr>
+                        <tr class="gen-2">
+                            <td>2</td>
+                            <td>Magnolia Antonia</td>
+                            <td>DE WINDT SILBERBERG</td>
+                            <td>10-May-1935</td>
+                            <td>-</td>
+                            <td>No</td>
+                            <td>🟡 <strong>HEREDA POR REPRESENTACIÓN</strong> (viva)</td>
+                        </tr>
+                        <tr class="gen-2">
+                            <td>2</td>
+                            <td>Gustavo Bertran Franco</td>
+                            <td>DE WINDT SILBERBERG</td>
+                            <td>06-Apr-1937</td>
+                            <td>30-Jan-2018</td>
+                            <td>Sí</td>
+                            <td>🟡 HEREDÓ POR REPRESENTACIÓN. Sus 4 hijos heredan</td>
+                        </tr>
+                        <tr class="gen-2">
+                            <td>2</td>
+                            <td>Andres Virgilio</td>
+                            <td>DE WINDT SILBERBERG</td>
+                            <td>30-Nov-1938</td>
+                            <td>-</td>
+                            <td>No</td>
+                            <td>🟡 <strong>HEREDA POR REPRESENTACIÓN</strong> (vivo)</td>
+                        </tr>
+                        <tr class="gen-2">
+                            <td>2</td>
+                            <td>Esther Cecilia</td>
+                            <td>DE WINDT SILBERBERG</td>
+                            <td>09-Jul-1941</td>
+                            <td>13-Jun-2010</td>
+                            <td>Sí</td>
+                            <td>🟡 HEREDÓ POR REPRESENTACIÓN. Sus 3 hijos heredan</td>
+                        </tr>
+                        <tr class="gen-2" style="background: #ffe6e6;">
+                            <td>2</td>
+                            <td>Gladiola</td>
+                            <td>DE WINDT JAZMIN</td>
+                            <td>18-Jan-1950</td>
+                            <td>-</td>
+                            <td>?</td>
+                            <td>⚠️ <strong>INVESTIGAR FILIACIÓN</strong> con Flora JAZMIN</td>
+                        </tr>
+                        <tr class="gen-2" style="background: #ffe6e6;">
+                            <td>2</td>
+                            <td>Martinan</td>
+                            <td>DE WINDT JAZMIN</td>
+                            <td>03-Apr-1955</td>
+                            <td>-</td>
+                            <td>?</td>
+                            <td>⚠️ <strong>INVESTIGAR FILIACIÓN</strong> con Flora JAZMIN</td>
+                        </tr>
+                        <tr class="gen-2" style="background: #ffe6e6;">
+                            <td>2</td>
+                            <td>Reyna Margarita</td>
+                            <td>DE WINDT ALTAGRACIA</td>
+                            <td>10-Jun-1943</td>
+                            <td>-</td>
+                            <td>?</td>
+                            <td>⚠️ <strong>INVESTIGAR URGENTE FILIACIÓN</strong></td>
+                        </tr>
+                        <tr class="gen-3">
+                            <td>3</td>
+                            <td>Juana Yolanda Esther</td>
+                            <td>GAUTREAU DE WINDT</td>
+                            <td>06-Nov-1955</td>
+                            <td>-</td>
+                            <td>?</td>
+                            <td>🟢 HEREDA por representación (madre fallecida)</td>
+                        </tr>
+                        <tr class="gen-3">
+                            <td>3</td>
+                            <td>Maria Taina De Jesus</td>
+                            <td>GAUTREAU DE WINDT</td>
+                            <td>12-May-1957</td>
+                            <td>-</td>
+                            <td>?</td>
+                            <td>🟢 HEREDA por representación (madre fallecida)</td>
+                        </tr>
+                        <tr class="gen-3">
+                            <td>3</td>
+                            <td>Pedro Julio Enmanuel</td>
+                            <td>GAUTREAU DE WINDT</td>
+                            <td>06-Mar-1959</td>
+                            <td>-</td>
+                            <td>?</td>
+                            <td>🟢 HEREDA por representación (madre fallecida)</td>
+                        </tr>
+                        <tr class="gen-3">
+                            <td>3</td>
+                            <td>Eduardo Clodomiro Emmanuel</td>
+                            <td>GAUTREAU DE WINDT</td>
+                            <td>27-Apr-1962</td>
+                            <td>-</td>
+                            <td>?</td>
+                            <td>🟢 HEREDA por representación (madre fallecida)</td>
+                        </tr>
+                        <tr class="gen-3">
+                            <td>3</td>
+                            <td>Trinidad Anadina</td>
+                            <td>GAUTREAU DE WINDT</td>
+                            <td>19-Apr-1964</td>
+                            <td>-</td>
+                            <td>?</td>
+                            <td>🟢 HEREDA por representación (madre fallecida)</td>
+                        </tr>
+                        <tr class="gen-3">
+                            <td>3</td>
+                            <td>Maria Susana De Jesus</td>
+                            <td>GAUTREAU DE WINDT</td>
+                            <td>19-Mar-1966</td>
+                            <td>-</td>
+                            <td>?</td>
+                            <td>🟢 HEREDA por representación (madre fallecida)</td>
+                        </tr>
+                        <tr class="gen-3">
+                            <td>3</td>
+                            <td>Juan Benjamin De Jesus</td>
+                            <td>GAUTREAU DE WINDT</td>
+                            <td>10-Feb-1971</td>
+                            <td>-</td>
+                            <td>?</td>
+                            <td>🟢 HEREDA por representación (madre fallecida)</td>
+                        </tr>
+                        <tr class="gen-3">
+                            <td>3</td>
+                            <td>Gustavo De Jesus</td>
+                            <td>DE WINDT FELIX</td>
+                            <td>14-Sep-1963</td>
+                            <td>-</td>
+                            <td>?</td>
+                            <td>🟢 HEREDA por representación (padre fallecido)</td>
+                        </tr>
+                        <tr class="gen-3">
+                            <td>3</td>
+                            <td>Julio Alberto</td>
+                            <td>DE WINDT FELIX</td>
+                            <td>22-Sep-1965</td>
+                            <td>-</td>
+                            <td>?</td>
+                            <td>🟢 HEREDA por representación (padre fallecido)</td>
+                        </tr>
+                        <tr class="gen-3">
+                            <td>3</td>
+                            <td>Ricardo Eliseo</td>
+                            <td>DE WINDT FELIX</td>
+                            <td>25-Sep-1968</td>
+                            <td>-</td>
+                            <td>?</td>
+                            <td>🟢 HEREDA por representación (padre fallecido)</td>
+                        </tr>
+                        <tr class="gen-3">
+                            <td>3</td>
+                            <td>Galvany Yajaira</td>
+                            <td>DE WINDT MORALES</td>
+                            <td>08-Mar-1980</td>
+                            <td>-</td>
+                            <td>?</td>
+                            <td>🟢 HEREDA por representación (padre fallecido)</td>
+                        </tr>
+                        <tr class="gen-3">
+                            <td>3</td>
+                            <td>Wilfredo</td>
+                            <td>MATEO DE WINDT</td>
+                            <td>10-Oct-1963</td>
+                            <td>-</td>
+                            <td>?</td>
+                            <td>🟢 HEREDA por representación (madre fallecida)</td>
+                        </tr>
+                        <tr class="gen-3">
+                            <td>3</td>
+                            <td>Cecilia Mercedes</td>
+                            <td>MATEO DE WINDT</td>
+                            <td>12-Jun-1965</td>
+                            <td>-</td>
+                            <td>?</td>
+                            <td>🟢 HEREDA por representación (madre fallecida)</td>
+                        </tr>
+                        <tr class="gen-3">
+                            <td>3</td>
+                            <td>David</td>
+                            <td>MATEO DE WINDT</td>
+                            <td>30-May-1968</td>
+                            <td>-</td>
+                            <td>?</td>
+                            <td>🟢 HEREDA por representación (madre fallecida)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- TAB: Árbol Genealógico -->
+        <div id="arbol" class="tab-content">
+            <h2>Árbol Genealógico Visual</h2>
+            <p style="margin-bottom: 20px;"><em>Árbol genealógico mostrando las 3 primeras generaciones</em></p>
+            
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #1f4e78;"></div>
+                    <span>Causante</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #d6dce4; border-color: #4472c4;"></div>
+                    <span>Herederos Directos</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #fff9e6; border-color: #ffc000;"></div>
+                    <span>Heredan por Representación</span>
+                </div>
+                <div class="legend-item">
+                    <span style="text-decoration: line-through;">Texto tachado</span>
+                    <span>= Fallecido</span>
+                </div>
+            </div>
+            
+            <p class="scroll-hint">⬅️ Desliza horizontalmente para ver todo el árbol ➡️</p>
+            
+            <div class="tree-container">
+                <div class="tree">
+                    <ul>
+                        <li>
+                            <a href="#" class="causante fallecido">Eduardo Oratio<br>DE WINDT<br>(1870-1947)</a>
+                            <ul>
+                                <li>
+                                    <a href="#" class="heredero-directo fallecido">Juana Elicia<br>DE WINDT LALANE<br>(1899-1992)<br>Sin descendientes</a>
+                                </li>
+                                <li>
+                                    <a href="#" class="heredero-directo fallecido">Gustavo Bernardo<br>DE WINDT LALANE<br>(1900-1971)</a>
+                                    <ul>
+                                        <li>
+                                            <a href="#" class="heredero-rep fallecido">Yolanda E.A.<br>DE WINDT S.<br>(1928-2022)<br>7 hijos</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="heredero-rep fallecido">Eduardo Aaron<br>DE WINDT S.<br>(1929-2017)</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="heredero-rep">Luisa Elisia<br>DE WINDT S.<br>(1933-viva)</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="heredero-rep">Magnolia A.<br>DE WINDT S.<br>(1935-viva)</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="heredero-rep fallecido">Gustavo B.F.<br>DE WINDT S.<br>(1937-2018)<br>4 hijos</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="heredero-rep">Andres Virgilio<br>DE WINDT S.<br>(1938-vivo)</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="heredero-rep fallecido">Esther Cecilia<br>DE WINDT S.<br>(1941-2010)<br>3 hijos</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="alert warning" style="margin-top: 30px;">
+                <h3>⚠️ Nota Importante</h3>
+                <p>Por razones de espacio, este árbol visual muestra solo las 3 primeras generaciones. Existen aproximadamente 48 bisnietos (Generación 3) adicionales que heredan por derecho de representación cuando sus padres de Generación 2 han fallecido. Consulta la tabla completa para ver todos los descendientes.</p>
+            </div>
+        </div>
+        
+        <!-- TAB: Documentos Requeridos -->
+        <div id="documentos" class="tab-content">
+            <h2>📄 Documentos Requeridos para Declaratoria de Herederos</h2>
+            
+            <div class="alert critical">
+                <h3>🔴 Documentos de Prioridad CRÍTICA</h3>
+                <ul>
+                    <li><strong>Pruebas de filiación de Flora JAZMIN:</strong> Debido a inconsistencias cronológicas (sus hijos nacieron después del fallecimiento de Gustavo Bernardo), es imprescindible investigar y acreditar la filiación.</li>
+                    <li><strong>Pruebas de filiación de Maria ALTAGRACIA:</strong> La relación con Gustavo Bernardo no está clara. Investigación urgente necesaria.</li>
+                </ul>
+            </div>
+            
+            <div class="alert warning">
+                <h3>🟡 Documentos del Causante (Prioridad ALTA)</h3>
+                <ul>
+                    <li>Acta de nacimiento íntegra original del registro civil de Curaçao</li>
+                    <li>Acta de nacimiento traducida al español y apostillada</li>
+                    <li>Acta de defunción íntegra original del registro civil de República Dominicana</li>
+                    <li>Acta de matrimonio con Altagracia LALANE FERRAND</li>
+                    <li>Certificado de última voluntad (tanto de Curaçao como de República Dominicana)</li>
+                </ul>
+            </div>
+            
+            <div class="alert info">
+                <h3>🔵 Documentos de Cada Heredero Vivo (Prioridad ALTA)</h3>
+                <ul>
+                    <li>Acta de nacimiento íntegra original para establecer cadena genealógica</li>
+                    <li>Acta de nacimiento traducida y apostillada (según país de origen)</li>
+                    <li>Cédula de identidad o pasaporte vigente</li>
+                    <li>Certificado de supervivencia emitido por autoridad competente</li>
+                    <li>Actas de matrimonio (para acreditar vínculos familiares)</li>
+                </ul>
+            </div>
+            
+            <div class="alert info">
+                <h3>🔵 Documentos de Herederos Fallecidos (Prioridad ALTA)</h3>
+                <ul>
+                    <li>Actas de defunción íntegras originales (para aplicar derecho de representación)</li>
+                    <li>Actas de defunción traducidas y apostilladas (según país de origen)</li>
+                    <li>Actas de nacimiento de sus hijos (para acreditar el derecho de representación)</li>
+                </ul>
+            </div>
+            
+            <h3 style="margin-top: 30px;">Tabla Detallada de Documentos</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Categoría</th>
+                        <th>Documento</th>
+                        <th>Observaciones</th>
+                        <th>Prioridad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Del Causante</td>
+                        <td>Acta de nacimiento íntegra original</td>
+                        <td>Debe ser del registro civil de Curaçao</td>
+                        <td style="background: #ffc000; font-weight: bold;">ALTA</td>
+                    </tr>
+                    <tr>
+                        <td>Del Causante</td>
+                        <td>Acta de nacimiento traducida y apostillada</td>
+                        <td>Traducción oficial al español</td>
+                        <td style="background: #ffc000; font-weight: bold;">ALTA</td>
+                    </tr>
+                    <tr>
+                        <td>Del Causante</td>
+                        <td>Acta de defunción íntegra original</td>
+                        <td>Del registro civil de República Dominicana</td>
+                        <td style="background: #ffc000; font-weight: bold;">ALTA</td>
+                    </tr>
+                    <tr>
+                        <td>Del Causante</td>
+                        <td>Acta de matrimonio íntegra original</td>
+                        <td>Con Altagracia LALANE FERRAND</td>
+                        <td style="background: #ffc000; font-weight: bold;">ALTA</td>
+                    </tr>
+                    <tr>
+                        <td>De cada heredero vivo</td>
+                        <td>Acta de nacimiento íntegra original</td>
+                        <td>Establecer cadena genealógica completa</td>
+                        <td style="background: #ffc000; font-weight: bold;">ALTA</td>
+                    </tr>
+                    <tr>
+                        <td>De cada heredero vivo</td>
+                        <td>Cédula o pasaporte vigente</td>
+                        <td>Identificación válida</td>
+                        <td style="background: #ffc000; font-weight: bold;">ALTA</td>
+                    </tr>
+                    <tr>
+                        <td>De cada heredero vivo</td>
+                        <td>Certificado de supervivencia</td>
+                        <td>Emitido por autoridad competente</td>
+                        <td style="background: #ffc000; font-weight: bold;">ALTA</td>
+                    </tr>
+                    <tr>
+                        <td>De herederos fallecidos</td>
+                        <td>Acta de defunción íntegra original</td>
+                        <td>Para aplicar derecho de representación</td>
+                        <td style="background: #ffc000; font-weight: bold;">ALTA</td>
+                    </tr>
+                    <tr style="background: #ffcccc;">
+                        <td>Investigación especial</td>
+                        <td>Pruebas de filiación Flora JAZMIN</td>
+                        <td>Inconsistencias cronológicas detectadas</td>
+                        <td style="background: #ff0000; color: white; font-weight: bold;">CRÍTICA</td>
+                    </tr>
+                    <tr style="background: #ffcccc;">
+                        <td>Investigación especial</td>
+                        <td>Pruebas de filiación Maria ALTAGRACIA</td>
+                        <td>Relación con Gustavo Bernardo no clara</td>
+                        <td style="background: #ff0000; color: white; font-weight: bold;">CRÍTICA</td>
+                    </tr>
+                    <tr>
+                        <td>Legal</td>
+                        <td>Certificado de última voluntad</td>
+                        <td>De Curaçao y República Dominicana</td>
+                        <td style="background: #ffc000; font-weight: bold;">ALTA</td>
+                    </tr>
+                    <tr>
+                        <td>Legal</td>
+                        <td>Certificado de bienes</td>
+                        <td>Inventario de bienes del causante</td>
+                        <td>MEDIA</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- TAB: Consideraciones Legales -->
+        <div id="legal" class="tab-content">
+            <h2>⚖️ Consideraciones Legales para la Sucesión</h2>
+            
+            <div class="alert critical">
+                <h3>1. CONFLICTO DE LEYES Y JURISDICCIÓN</h3>
+                <p><strong>Problema:</strong> El causante Eduardo Oratio DE WINDT DE WINDT nació en Curaçao (Antillas Holandesas) pero falleció en República Dominicana.</p>
+                <p><strong>Implicaciones:</strong></p>
+                <ul>
+                    <li>Debe determinarse qué ley es aplicable a la sucesión: ¿la ley de Curaçao (nacionalidad) o la ley de República Dominicana (último domicilio)?</li>
+                    <li>Diferentes sistemas jurídicos pueden tener reglas distintas sobre:
+                        <ul>
+                            <li>Orden de sucesión</li>
+                            <li>Porcentajes de legítimas y cuotas disponibles</li>
+                            <li>Derechos del cónyuge supérstite</li>
+                            <li>Representación sucesoria</li>
+                        </ul>
+                    </li>
+                    <li>Es necesario consultar con un abogado especializado en derecho internacional privado</li>
+                </ul>
+                <p><strong>Acción requerida:</strong> Determinar jurisdicción competente y ley aplicable ANTES de proceder con la declaratoria de herederos.</p>
+            </div>
+            
+            <div class="alert critical">
+                <h3>2. PRESCRIPCIÓN DE LA ACCIÓN SUCESORIA</h3>
+                <p><strong>Problema:</strong> Han transcurrido más de 77 años desde el fallecimiento del causante (27 de junio de 1947).</p>
+                <p><strong>Implicaciones:</strong></p>
+                <ul>
+                    <li>En muchas jurisdicciones, las acciones sucesorias prescriben tras un determinado plazo (generalmente entre 10 y 30 años).</li>
+                    <li>La prescripción podría afectar la capacidad de los herederos de reclamar bienes del causante.</li>
+                    <li>Algunas excepciones podrían aplicar si nunca se abrió formalmente la sucesión.</li>
+                </ul>
+                <p><strong>Acción requerida:</strong> Verificar URGENTEMENTE los plazos de prescripción según la ley aplicable.</p>
+            </div>
+            
+            <div class="alert warning">
+                <h3>3. PROBLEMAS DE FILIACIÓN</h3>
+                <p><strong>Casos problemáticos identificados:</strong></p>
+                
+                <h4>a) Flora JAZMIN</h4>
+                <ul>
+                    <li>Aparece como cónyuge de Gustavo Bernardo DE WINDT LALANE</li>
+                    <li><strong>INCONSISTENCIA CRÍTICA:</strong> Sus hijos nacieron en 1950-1956, pero Gustavo Bernardo falleció en 1971</li>
+                    <li>Las fechas sugieren que la relación fue POSTERIOR al matrimonio con Esther SILBERBERG (1927)</li>
+                    <li><strong>Posibilidades:</strong>
+                        <ul>
+                            <li>Relación extramatrimonial</li>
+                            <li>Segundo matrimonio tras divorcio o viudez de Esther</li>
+                            <li>Error en las fechas del documento genealógico</li>
+                        </ul>
+                    </li>
+                    <li><strong>Consecuencia legal:</strong> Los hijos de Flora JAZMIN podrían o no ser herederos legítimos según se compruebe la filiación</li>
+                </ul>
+                
+                <h4>b) Maria ALTAGRACIA</h4>
+                <ul>
+                    <li>Aparece como madre de Reyna Margarita DE WINDT ALTAGRACIA</li>
+                    <li>No hay información clara sobre su relación con Gustavo Bernardo</li>
+                    <li><strong>Consecuencia legal:</strong> Sin prueba de filiación, Reyna Margarita podría ser excluida de la herencia</li>
+                </ul>
+                
+                <p><strong>Acción requerida:</strong> Investigación genealógica exhaustiva con pruebas documentales (actas de nacimiento que indiquen paternidad, reconocimientos, etc.) y posiblemente pruebas de ADN de descendientes.</p>
+            </div>
+            
+            <div class="alert info">
+                <h3>4. DERECHO DE REPRESENTACIÓN</h3>
+                <p><strong>Principio aplicable:</strong> En la sucesión intestada, cuando un hijo del causante ha fallecido, sus descendientes heredan por "derecho de representación" en el lugar que le hubiera correspondido a su padre/madre.</p>
+                
+                <p><strong>Aplicación al caso:</strong></p>
+                <ul>
+                    <li><strong>Generación 1 (Hijos directos):</strong> Ambos fallecidos
+                        <ul>
+                            <li>Juana Elicia: Sin descendientes → su porción acreció a Gustavo Bernardo</li>
+                            <li>Gustavo Bernardo: Con descendientes → heredan por representación</li>
+                        </ul>
+                    </li>
+                    <li><strong>Generación 2 (Nietos):</strong> Heredan la porción de Gustavo Bernardo
+                        <ul>
+                            <li>Los 6-7 nietos vivos heredan directamente</li>
+                            <li>Los nietos fallecidos transmiten a sus hijos (Generación 3)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Generación 3 (Bisnietos):</strong> Heredan solo si su padre/madre (Gen 2) falleció
+                        <ul>
+                            <li>15 bisnietos identificados que heredan por representación</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <p><strong>Importante:</strong> El derecho de representación opera "por estirpe" no "por cabeza". Esto significa que cada rama familiar recibe la porción que le hubiera correspondido a su ascendiente, dividiéndola entre todos los representantes de esa rama.</p>
+            </div>
+            
+            <div class="alert info">
+                <h3>5. CADENA GENEALÓGICA Y CARGA DE LA PRUEBA</h3>
+                <p><strong>Requisito esencial:</strong> Cada heredero debe probar su vínculo con el causante mediante una cadena ininterrumpida de actas de estado civil.</p>
+                
+                <p><strong>Ejemplo para un bisnieto (Generación 3):</strong></p>
+                <ol>
+                    <li>Acta de nacimiento del causante (Eduardo Oratio)</li>
+                    <li>Acta de nacimiento de Gustavo Bernardo (que indique a Eduardo como padre)</li>
+                    <li>Acta de nacimiento de Yolanda Emilia (que indique a Gustavo como padre)</li>
+                    <li>Acta de nacimiento del bisnieto (que indique a Yolanda como madre)</li>
+                    <li>Actas de defunción de Eduardo, Gustavo y Yolanda (para probar que operó la representación)</li>
+                </ol>
+                
+                <p><strong>Complicaciones:</strong></p>
+                <ul>
+                    <li>Documentos de 3 países diferentes (Curaçao, República Dominicana, posiblemente otros)</li>
+                    <li>Necesidad de traducciones oficiales y apostillas</li>
+                    <li>Posibles cambios de nombres o apellidos</li>
+                    <li>Registros antiguos que pueden estar incompletos o dañados</li>
+                </ul>
+            </div>
+            
+            <div class="alert warning">
+                <h3>6. ESTADO VITAL DE LOS HEREDEROS</h3>
+                <p><strong>Problema:</strong> Para muchos herederos, el documento indica "Estado desconocido".</p>
+                
+                <p><strong>Implicaciones:</strong></p>
+                <ul>
+                    <li>Es necesario determinar quiénes están vivos y quiénes han fallecido</li>
+                    <li>Los vivos necesitan certificados de supervivencia</li>
+                    <li>Los fallecidos necesitan actas de defunción para que operen sus herederos por representación</li>
+                    <li>Sin esta información, no se puede determinar el reparto definitivo de la herencia</li>
+                </ul>
+                
+                <p><strong>Acción requerida:</strong> Investigación del estado vital actual de todos los herederos potenciales.</p>
+            </div>
+            
+            <div class="alert info">
+                <h3>7. PROCEDIMIENTO SUGERIDO</h3>
+                <ol>
+                    <li><strong>Fase 1: Investigación preliminar (2-4 meses)</strong>
+                        <ul>
+                            <li>Determinar ley aplicable y jurisdicción competente</li>
+                            <li>Verificar plazos de prescripción</li>
+                            <li>Investigar filiación de casos problemáticos (Flora JAZMIN, Maria ALTAGRACIA)</li>
+                            <li>Determinar estado vital de herederos</li>
+                        </ul>
+                    </li>
+                    <li><strong>Fase 2: Recopilación documental (4-8 meses)</strong>
+                        <ul>
+                            <li>Obtener actas de estado civil del causante</li>
+                            <li>Obtener actas de todos los herederos confirmados</li>
+                            <li>Traducir y apostillar documentos extranjeros</li>
+                            <li>Obtener certificados de última voluntad</li>
+                        </ul>
+                    </li>
+                    <li><strong>Fase 3: Declaratoria judicial (6-18 meses)</strong>
+                        <ul>
+                            <li>Presentar demanda de declaratoria de herederos</li>
+                            <li>Notificar a todos los herederos conocidos</li>
+                            <li>Resolver objeciones o reclamaciones</li>
+                            <li>Obtener sentencia firme</li>
+                        </ul>
+                    </li>
+                    <li><strong>Fase 4: Partición y adjudicación (3-12 meses)</strong>
+                        <ul>
+                            <li>Inventario de bienes (si los hay)</li>
+                            <li>Liquidación de deudas</li>
+                            <li>Partición entre herederos</li>
+                            <li>Adjudicación final</li>
+                        </ul>
+                    </li>
+                </ol>
+                
+                <p><strong>Tiempo total estimado:</strong> 15-42 meses (1.25 a 3.5 años), dependiendo de la complejidad y cooperación de las partes.</p>
+            </div>
+            
+            <div class="alert critical">
+                <h3>8. RECOMENDACIONES FINALES</h3>
+                <ul>
+                    <li>✅ Consultar URGENTEMENTE con abogado especializado en derecho sucesorio internacional</li>
+                    <li>✅ Iniciar investigación genealógica profesional para casos de filiación dudosa</li>
+                    <li>✅ Contactar con registros civiles de Curaçao y República Dominicana</li>
+                    <li>✅ Localizar y contactar a todos los herederos potenciales</li>
+                    <li>✅ Evaluar existencia y valor de bienes antes de iniciar proceso costoso</li>
+                    <li>✅ Considerar mediación familiar para evitar conflictos entre herederos</li>
+                    <li>⚠️ NO proceder sin antes resolver las cuestiones de jurisdicción y prescripción</li>
+                    <li>⚠️ NO asumir automáticamente que todos los listados son herederos legítimos</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function openTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+        
+        function filterHerederos(filter) {
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const cards = document.querySelectorAll('.heredero-card');
+            
+            cards.forEach(card => {
+                card.style.display = 'block';
+                
+                if (filter === 'vivos' && !card.classList.contains('vivo')) {
+                    card.style.display = 'none';
+                }
+                
+                if (filter === 'gen2' && !card.classList.contains('gen2')) {
+                    card.style.display = 'none';
+                }
+                
+                if (filter === 'gen3' && !card.classList.contains('gen3')) {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
